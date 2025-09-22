@@ -2,8 +2,8 @@
 
 // ===== ADDRESSES =====
 export const CONTRACTS = {
-    VAULT_ADDRESS: "0xFED81A469944B1D5d1500fA722Cb820a6481Dbcc",
-    WHBAR_ADDRESS: "0xC230646FD55B68C7445C3b1aBB683C2357a7A180",
+    VAULT_ADDRESS: "0xCc93fE64aE6CE806290757846A0a9bc0E96BE558",
+    WHBAR_ADDRESS: "0x281287c60127D235b436Be64BeC8A7eFB1988A4B",
     IMPACT_CERTIFICATE_ADDRESS: "0x5814A86128C5E08aFe033D9C895d8C51DcD8ACcd",
     IMPACT_POOL_ADDRESS: "0xe2569eC5726Ff510071cE63389854c1D86A9599E",
   } as const;
@@ -22,24 +22,52 @@ export const CONTRACTS = {
   } as const;
   
   // ===== VAULT ABI =====
-  export const VAULT_ABI = [
-    "function depositLiquidity(uint256 assets) external returns (uint256 shares)",
-    "function withdrawProfits() external returns (uint256 assets)",
-    "function getUserShareBalance(address user) external view returns (uint256)",
-    "function getBalanceUser(address user) external view returns (uint256)",
-    "function balanceOf(address account) external view returns (uint256)",
-    "function totalSupply() external view returns (uint256)",
-    "function totalAssets() external view returns (uint256)",
-    "function getSharePrice() external view returns (uint256)",
-    "function getAvailableAssets() external view returns (uint256)",
-    "function minDeposit() external view returns (uint256)",
-    "function paused() external view returns (bool)",
-    "function asset() external view returns (address)",
-    "function previewDeposit(uint256 assets) external view returns (uint256)",
-    "function previewRedeem(uint256 shares) external view returns (uint256)",
-    "event LiquidityAdded(address indexed user, uint256 assets, uint256 shares)",
-    "event LiquidityRemoved(address indexed user, uint256 assets, uint256 shares)"
-  ] as const;
+export const VAULT_ABI = [
+  "function depositLiquidity(uint256 assets) external returns (uint256 shares)",
+  "function withdrawProfits(uint256 impactAllocationBps) external returns (uint256 assets)",
+  "function depositLiquidityWithoutShares(uint256 amount) external",
+  "function moveFromVaultToWallet(uint256 amount, address tradingWallet) external",
+  "function moveFromWalletToVault(uint256 amount, uint256 profitAmount, address fromWallet) external",
+  "function returnAllCapital(address fromWallet) external",
+  "function getUserShareBalance(address user) external view returns (uint256)",
+  "function getBalanceUser(address user) external view returns (uint256)",
+  "function getBalanceVault() external view returns (uint256)",
+  "function balanceOf(address account) external view returns (uint256)",
+  "function shareToUser(address user) external view returns (uint256)",
+  "function totalSupply() external view returns (uint256)",
+  "function totalAssets() external view returns (uint256)",
+  "function getSharePrice() external view returns (uint256)",
+  "function getAvailableAssets() external view returns (uint256)",
+  "function totalAllocated() external view returns (uint256)",
+  "function getVaultState() external view returns (uint256, uint256, uint256, uint256, uint256)",
+  "function previewDeposit(uint256 assets) external view returns (uint256)",
+  "function previewRedeem(uint256 shares) external view returns (uint256)",
+  "function previewWithdrawalFee(uint256 assets) external view returns (uint256)",
+  "function minDeposit() external view returns (uint256)",
+  "function maxAllocationBps() external view returns (uint256)",
+  "function withdrawalFeeBps() external view returns (uint256)",
+  "function paused() external view returns (bool)",
+  "function asset() external view returns (address)",
+  "function feeRecipient() external view returns (address)",
+  "function getTotalAccumulatedFees() external view returns (uint256)",
+  "function accumulatedWithdrawalFees() external view returns (uint256)",
+  "function withdrawFees() external",
+  "function impactPool() external view returns (address)",
+  "function getUserProfits(address user) external view returns (uint256)",
+  "function getUserTotalDeposited(address user) external view returns (uint256)",
+  "function addAuthorizedAgent(address agent) external",
+  "function removeAuthorizedAgent(address agent) external",
+  "function authorizedAgents(address agent) external view returns (bool)",
+  "function getAuthorizedAgents() external view returns (address[])",
+  "function setMaxAllocation(uint256 newMaxBps) external",
+  "function setMinDeposit(uint256 newMinDeposit) external",
+  "function setWithdrawalFee(uint256 newFeeBps) external",
+  "function setFeeRecipient(address newRecipient) external",
+  "function setImpactPool(address newImpactPool) external",
+  "function pause() external",
+  "function unpause() external",
+  "function owner() external view returns (address)"
+] as const;
   
   // ===== WHBAR ABI =====
   export const WHBAR_ABI = [
