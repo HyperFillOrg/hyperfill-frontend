@@ -1,24 +1,10 @@
 # HyperFill Frontend
 
-A DeFi vault management and trading terminal with social impact built with React and TypeScript. The application is an interface for managing vault deposits/withdrawals, trading operations, and charitable donations on Hedera through an AI system with multiple agents.
-
-## Why Terminal Frontend?
-
-The decision to implement a terminal interface stems from several technical and user experience considerations. Trading terminals in traditional finance have proven to be highly efficient for financial data consumption. The terminal aesthetic has:
-
-1. **Information Density**: Terminal interfaces can display more data in less space, crucial for trading operations where users need to process multiple data streams simultaneously.
-
-2. **Reduced Cognitive Load**: The monospace font and structured layout create predictable visual patterns, users can quickly scan for anomalies or opportunities.
-
-3. **Professional Credibility**: Terminal interfaces signal technical sophistication and serious trading capabilities, building trust with professional users.
-
-4. **Performance Optimization**: Terminal layouts typically require fewer DOM manipulations and can be optimized for updates without visual flickering.
-
-5. **Accessibility**: The high contrast and structured layout improve readability for users with visual impairments or those working in low-light conditions.
+A DeFi vault management and trading terminal with social impact built with React and TypeScript. The application is an interface for vault deposits/withdrawals, trading operations and charitable donations on Hedera through an AI system with multiple agents.
 
 ## System Architecture
 
-### Architecture Layer
+### Architecture 
 
 HyperFill follows a layered architecture pattern with clear separation of concerns:
 
