@@ -1,6 +1,6 @@
- # HyperFill Frontend
+# HyperFill Frontend
 
-A DeFi vault management and trading terminal built with React and TypeScript. The application is an interface for managing vault deposits/withdrawals and trading operations on SEI through an AI system with multiple agents.
+A DeFi vault management and trading terminal with social impact built with React and TypeScript. The application is an interface for managing vault deposits/withdrawals, trading operations, and charitable donations on Hedera through an AI system with multiple agents.
 
 ## Why Terminal Frontend?
 
@@ -14,7 +14,7 @@ The decision to implement a terminal interface stems from several technical and 
 
 4. **Performance Optimization**: Terminal layouts typically require fewer DOM manipulations and can be optimized for updates without visual flickering.
 
-5. **Accessibility**: The high contrast and structured layout improve readability for users with visual impairments or those working in low- ight conditions.
+5. **Accessibility**: The high contrast and structured layout improve readability for users with visual impairments or those working in low-light conditions.
 
 ## System Architecture
 
@@ -26,13 +26,13 @@ HyperFill follows a layered architecture pattern with clear separation of concer
 ┌─────────────────────────────────────────────────────────────┐
 │                    Presentation Layer                       │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────────────┐    │
-│  │VaultDashboard│ │TradingTerminal│ │   WalletConnect  │    │
+│  │VaultDashboard│ │TradingTerminal│ │   ImpactPool     │    │
 │  └─────────────┘ └─────────────┘ └─────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
 ┌─────────────────────────────────────────────────────────────┐
 │                     Business Logic Layer                    │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────────────┐    │
-│  │  useVault   │ │ useWallet   │ │   useToast          │    │
+│  │  useVault   │ │ useWallet   │ │   useImpactPool     │    │
 │  └─────────────┘ └─────────────┘ └─────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
 ┌─────────────────────────────────────────────────────────────┐
@@ -44,7 +44,7 @@ HyperFill follows a layered architecture pattern with clear separation of concer
 ┌─────────────────────────────────────────────────────────────┐
 │                   Infrastructure Layer                      │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────────────┐    │
-│  │   SEI Chain │ │  MetaMask   │ │   Vite Build        │    │
+│  │Hedera Chain │ │  MetaMask   │ │   Vite Build        │    │
 │  └─────────────┘ └─────────────┘ └─────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -75,11 +75,11 @@ const { stats, loading, deposit, withdraw } = useVault();
 const useVault = () => {
   const [stats, setStats] = useState<VaultStats | null>(null);
   const [loading, setLoading] = useState(false);
-  
+
   const deposit = useCallback(async (amount: string) => {
     // Implementation
   }, []);
-  
+
   return { stats, loading, deposit, withdraw };
 };
 ```
@@ -88,130 +88,116 @@ const useVault = () => {
 
 ### Trading System
 
-HyperFill implements AI trading system with four specialized agents, each modeled after legendary traders:
+HyperFill implements AI trading system with four specialized strategies, each providing financial education:
 
-#### 1. Buffett Agent (Analyst)
+#### 1. Value Strategy (Fundamental Analysis)
 - **Role**: Market analysis & long-term value assessment
 - **Status**: Continuously analyzing fundamentals across markets
-- **Performance**: 94.2% accuracy in value identification
-- **Personality**: Patient value investor who sees what others miss
+- **Performance**: +12.3% returns
+- **Education**: "Buy assets trading below intrinsic value based on fundamentals, not hype."
 - **Current Task**: Analyzing fundamentals across 12 markets
 
-#### 2. Belfort Agent (Pricing)
-- **Role**: Aggressive price optimization & profit maximization
-- **Status**: Processing profit calculations and price targets
-- **Performance**: 18.7% average profit per trade
-- **Personality**: Wolf of Wall Street - ruthless profit hunter
-- **Current Task**: Calculating maximum profit entry at $0.2448
+#### 2. Growth Strategy (Expansion Analysis)
+- **Role**: Identifying high-growth opportunities
+- **Status**: Processing growth metrics and adoption rates
+- **Performance**: +8.9% returns
+- **Education**: "Focus on projects with strong user adoption and expanding market share."
+- **Current Task**: Tracking user base growth and partnerships
 
-#### 3. Lynch Agent (Executive)
-- **Role**: Lightning-fast trade execution & market timing
-- **Status**: Executing trades with minimal latency
-- **Performance**: 47ms average execution latency
-- **Personality**: Legendary stock picker with perfect timing
-- **Current Task**: Executing BUY order: 150 SEI @ $0.2451
-
-#### 4. Dalio Agent (Inventory)
+#### 3. Risk Strategy (Portfolio Diversification)
 - **Role**: Risk management & systematic portfolio balance
 - **Status**: Monitoring portfolio risk and rebalancing
-- **Performance**: 1.84 Sharpe ratio
-- **Personality**: Principles-based risk master who protects capital
+- **Performance**: +15.7% returns
+- **Education**: "Spread investments across sectors to minimize correlated losses."
 - **Current Task**: Portfolio balanced: 67% long, 33% reserves
+
+#### 4. Technical Strategy (Market Analysis)
+- **Role**: Chart analysis & market timing
+- **Status**: Executing trades based on technical indicators
+- **Performance**: +22.1% returns
+- **Education**: "Use price patterns and volume to time market entries and exits."
+- **Current Task**: Identifying support/resistance levels
 
 ### Agent Coordination System
 
 The agents operate in a coordinated manner:
-- **Communication**: Live agent chatter displayed in terminal log
+- **Communication**: Live strategy updates displayed in activity log
 - **Performance**: Continuous monitoring of success rates and decision accuracy
 - **Synchronization**: Optimal coordination status with 89.3% success rate
-- **Tracking**: 1,247 decisions made today with live updates
+- **Education**: Each agent provides clear financial literacy insights
+
+## Impact Pool System
+
+### Social Impact Architecture
+
+HyperFill integrates charitable giving directly into the DeFi experience:
+
+#### Donation System
+- **Automatic Contributions**: Donate percentage of vault yields to verified charities
+- **Transparency**: Blockchain-tracked donations with Hedera Consensus Service
+- **Partners**: The Giving Block, Power Ledger Foundation, Celo Foundation
+- **Impact Metrics**: 2,847 beneficiaries across 15 countries
+
+#### HTS Impact Certificates
+- **Tokenized Proof**: Mint donations as Hedera Token Service NFTs
+- **Verification**: On-chain proof of charitable contributions
+- **Tax Documentation**: Exportable records for tax purposes
+- **Social Recognition**: Share impact achievements
 
 ## Components Architecture
 
 ### VaultDashboard Component
 
-The `VaultDashboard` component implements a state machine pattern for managing deposit and withdrawal operations. It uses React's `useState` and `useCallback` hooks to maintain local state while delegating blockchain operations to the `useVault` hook.
+The `VaultDashboard` component implements a state machine pattern for managing deposit and withdrawal operations with integrated impact features:
 
 ```typescript
 const [depositAmount, setDepositAmount] = useState('');
 const [isDepositing, setIsDepositing] = useState(false);
-const [isWithdrawing, setIsWithdrawing] = useState(false);
+const [donationPercentage, setDonationPercentage] = useState(5);
 ```
 
-The component implements input validation before blockchain calls, checking minimum deposit requirements and user balance constraints. This prevents unnecessary gas consumption and provides immediate user feedback.
+The component includes donation options on withdrawal, allowing users to contribute 0%, 5%, or 10% of profits to verified impact projects. This creates a seamless integration between profit-taking and social good.
 
-Statistics are fetched through the `useVault` hook, which implements a polling mechanism to keep vault data current. The hook uses `useEffect` with cleanup functions to prevent memory leaks during component unmounting.
+### ImpactPool Component
+
+The `ImpactPool` component manages charitable donations and impact tracking:
+
+- **Donation Rate Management**: Set automatic donation percentages
+- **Project Tracking**: Live updates on supported projects
+- **Certificate Management**: Mint and verify HTS impact certificates
+- **Transparency Dashboard**: Real-time impact metrics
 
 ### TradingTerminal Component
 
-The `TradingTerminal` component implements an architecture where each section (market stats, agent status, vault interface) operates independently. This modular design allows for easy feature additions and testing.
+The `TradingTerminal` component implements a clean, professional interface with educational features:
 
-The terminal header includes network validation logic that automatically detects incorrect network configurations and provides one-click switching to SEI testnet. This prevents user frustration and reduces support requests.
+- **Strategy Education**: Each agent explains their approach for financial literacy
+- **Impact Integration**: "Trading with Purpose" banner showing social impact
+- **Market Analysis**: Order book, market statistics, and activity logs
+- **Professional Design**: Clean cards replacing terminal aesthetic
+
+### WalletConnect Component
+
+The `WalletConnect` component implements Hedera-specific connection logic:
 
 ```typescript
-{isConnected && !isOnSeiTestnet && (
+{isConnected && !isOnHederaTestnet && (
   <Button
-    onClick={switchToSeiTestnet}
+    onClick={switchToHederaTestnet}
     variant="destructive"
     size="sm"
-    className="flex items-center gap-2 font-mono text-xs"
+    className="flex items-center gap-2"
   >
-    <AlertTriangle className="h-4 w-4" />
-    WRONG_NETWORK
+    Switch to Hedera Testnet
   </Button>
 )}
 ```
 
-The ASCII art header serves both aesthetic and functional purposes. It provides visual branding while maintaining the terminal aesthetic, and the monospace font ensures consistent rendering across different screen sizes.
-
-### WalletConnect Component
-
-The `WalletConnect` component implements a state machine for wallet connection lifecycle management. It handles connection states, network validation, and user feedback through a combination of React state and blockchain event listeners.
-
-Network switching logic automatically detects when users are on incorrect networks and provides contextual actions. The component uses the `useWallet` hook to maintain connection state across component re-renders.
-
-### VaultInterface Component
-
-The `VaultInterface` component provides an integrated vault management interface within the trading terminal. It features:
-
-- **Real-time Vault Statistics**: TVL, APY, share values, and user balances
-- **Transaction Interface**: Seamless deposit/withdrawal operations
-- **Fee Structure Display**: Management fees (2%), withdrawal fees (0.1%), gas optimization
-- **Approval Management**: Automatic WSEI token approval handling
-- **Status Monitoring**: Live vault status (TRADING/PAUSED/OFFLINE)
-
-### AgentStatusPanel Component
-
-The `AgentStatusPanel` displays real-time status of all AI trading agents:
-
-- **Live Status Updates**: Real-time agent activity monitoring
-- **Performance Metrics**: Individual agent performance tracking
-- **Task Visualization**: Current tasks and decision processes
-- **Team Coordination**: Overall system performance and success rates
-- **Animated Indicators**: Visual status indicators with terminal aesthetics
-
-### TerminalLog Component
-
-The `TerminalLog` provides a live feed of agent communications:
-
-- **Logging**: Live agent chatter and system messages
-- **Levels**: Info, success, warning, and error categorization
-- **Timestamp**: Precise timing of all activities
-- **Scrollable**: Historical log viewing with smooth scrolling
-- **Auto-refresh**: Updates every 8 seconds
-
-### MarketStats Component
-
-The `MarketStats` component displays comprehensive market information:
-
-- **SEI Price**: Current price, 24h change, volume, market cap
-- **Trading**: Active positions, win rate, daily PnL, Sharpe ratio
-- **Market**: Bull/Bear market indicators
-- **Updates**: Live market data with terminal styling
+Network switching logic automatically detects when users are on incorrect networks and provides contextual actions for Hedera Testnet (Chain ID: 296).
 
 ## Smart Contract Integration Strategy
 
-Contract integration follows a layered abstraction pattern. The `contracts.ts` file defines contract addresses and ABIs, while the `useVault` hook provides a clean API for contract interactions.
+Contract integration follows a layered abstraction pattern for Hedera compatibility:
 
 ```typescript
 const vaultContract = new ethers.Contract(
@@ -221,9 +207,12 @@ const vaultContract = new ethers.Contract(
 );
 ```
 
-The vault contract implements a share liquidity system where users deposit WSEI tokens and receive vault shares proportional to their contribution. Share price calculation happens on-chain for accuracy and to prevent manipulation.
+### Hedera-Specific Contracts
+- **VAULT_ADDRESS**: `0xFED81A469944B1D5d1500fA722Cb820a6481Dbcc`
+- **WHBAR_ADDRESS**: `0xC230646FD55B68C7445C3b1aBB683C2357a7A180`
+- **IMPACT_POOL_ADDRESS**: For donation tracking and certificate minting
 
-Withdrawal operations use a preview function to calculate expected returns before execution, allowing users to make informed decisions about their liquidity positions.
+The vault contract implements a share liquidity system where users deposit WHBAR tokens and receive vault shares proportional to their contribution.
 
 ## UI Component Library
 
@@ -236,11 +225,11 @@ HyperFill includes a complete set of UI components built on shadcn/ui and Radix 
 - **Navigation Components**: Tabs, Breadcrumb, Navigation Menu, Sidebar
 - **Feedback Components**: Toast, Alert, Progress, Skeleton, Tooltip
 
-### Advanced Components
-- **Data Display**: Table, Chart, Carousel, Accordion
-- **Overlay Components**: Dialog, Sheet, Drawer, Popover, Hover Card
-- **Input Components**: Input OTP, Command, Context Menu, Menubar
-- **Utility Components**: Resizable panels, Collapsible sections
+### Impact Components
+- **Donation Slider**: Select donation percentage
+- **Impact Cards**: Display charity projects
+- **Certificate Badge**: Show HTS certificates
+- **Progress Tracker**: Funding progress visualization
 
 ## How to Use HyperFill
 
@@ -248,65 +237,82 @@ HyperFill includes a complete set of UI components built on shadcn/ui and Radix 
 
 #### 1. Prerequisites
 - **Web3 Wallet**: MetaMask or compatible wallet extension
-- **SEI Testnet**: Access to SEI testnet (Chain ID: 1328)
-- **Testnet Tokens**: Some SEI testnet tokens for gas fees
+- **Hedera Testnet**: Access to Hedera testnet (Chain ID: 296)
+- **Testnet Tokens**: Some HBAR testnet tokens for gas fees
 
 #### 2. Network Configuration
 1. Open MetaMask and click the network dropdown
 2. Select "Add Network" or "Custom RPC"
 3. Enter the following details:
-   - **Network Name**: SEI Testnet
-   - **RPC URL**: `https://evm-rpc-testnet.sei-apis.com`
-   - **Chain ID**: `1328`
-   - **Currency Symbol**: SEI
-   - **Block Explorer**: `https://seitrace.com`
+   - **Network Name**: Hedera Testnet
+   - **RPC URL**: `https://testnet.hashio.io/api`
+   - **Chain ID**: `296`
+   - **Currency Symbol**: HBAR
+   - **Block Explorer**: `https://hashscan.io/testnet`
 
 #### 3. Accessing HyperFill
 1. Navigate to the HyperFill application
 2. Click "Connect Wallet" in the top-right corner
 3. Approve the connection in MetaMask
-4. Ensure you're connected to SEI Testnet
+4. Ensure you're connected to Hedera Testnet
 
 ### Vault Operations
 
-#### Depositing WSEI Tokens
+#### Depositing WHBAR Tokens
 
 1. **Navigate to Vault Dashboard**
    - Click the "Vault Dashboard" tab
    - View your current balance and vault statistics
 
 2. **Prepare for Deposit**
-   - Ensure you have sufficient WSEI tokens
+   - Ensure you have sufficient WHBAR tokens
    - Check the minimum deposit requirement
-   - Verify your wallet is connected to SEI testnet
+   - Verify your wallet is connected to Hedera testnet
 
 3. **Execute Deposit**
-   - Enter the amount of WSEI you want to deposit
-   - Click "Deposit WSEI"
+   - Enter the amount of WHBAR you want to deposit
+   - Click "Deposit"
    - Approve the transaction in MetaMask
    - Wait for confirmation
 
 4. **Check Results**
    - View your updated share balance
-   - Check the transaction hash in the block explorer
+   - Check the transaction hash in HashScan
    - Monitor your vault position
 
-#### Withdrawing Assets
+#### Withdrawing with Impact
 
-1. **Check Withdrawal Eligibility**
+1. **Check Withdrawal Options**
    - Verify you have vault shares
-   - Check available withdrawal amount
-   - Review current share price
+   - Select donation percentage (0%, 5%, or 10%)
+   - Review impact projects that will benefit
 
 2. **Execute Withdrawal**
-   - Click "Withdraw All" (full withdrawal)
+   - Click "Withdraw All"
+   - Confirm donation percentage
    - Approve the transaction in MetaMask
    - Wait for confirmation
 
-3. **Receive Assets**
-   - WSEI tokens are returned to your wallet
-   - Shares are burned proportionally
-   - Transaction appears in your wallet history
+3. **Track Impact**
+   - View donation receipt in Impact Pool
+   - Mint HTS certificate for tax records
+   - Monitor project progress
+
+### Impact Pool Operations
+
+#### Setting Donation Rate
+
+1. Navigate to Impact Pool tab
+2. Select donation percentage (0-100%)
+3. Confirm transaction
+4. View updated contribution metrics
+
+#### Minting Impact Certificates
+
+1. View available certificates
+2. Click "Mint" on unminted certificates
+3. Approve HTS token creation
+4. Receive tokenized proof of donation
 
 ## Development Workflow
 
@@ -327,8 +333,7 @@ While the current implementation focuses on functionality, the architecture supp
 - **Component Testing**: Components are designed with clear interfaces for easy testing
 - **Contract Mocking**: The abstraction layer allows for easy contract interaction mocking
 - **Integration Testing**: The modular architecture supports end-to-end testing scenarios
-- **AI Agent Testing**: Agent logic can be tested independently of UI components
-
+- **Impact Testing**: Donation flows and certificate minting can be tested independently
 
 ## Deployment Considerations
 
@@ -339,5 +344,4 @@ Production deployment uses Vite's build optimization features:
 - **Asset Optimization**: Images and other assets are optimized for web delivery
 - **Environment Configuration**: Build-time environment variable injection for different deployment targets
 - **CDN Compatibility**: Static site deployment for optimal global performance
-- **Edge Computing**: Support for edge computing platforms and serverless functions
-
+- **Hedera Integration**: Optimized for Hedera's high-throughput, low-latency network
