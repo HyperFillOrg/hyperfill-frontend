@@ -4,6 +4,7 @@
 export const CONTRACTS = {
     VAULT_ADDRESS: "0xFED81A469944B1D5d1500fA722Cb820a6481Dbcc",
     WHBAR_ADDRESS: "0xC230646FD55B68C7445C3b1aBB683C2357a7A180",
+    IMPACT_POOL_ADDRESS: "0x0000000000000000000000000000000000000000",
   } as const;
   
   // ===== HEDERA TESTNET CONFIG =====
@@ -52,4 +53,22 @@ export const CONTRACTS = {
     "function withdraw(uint256 amount) external",
     "event Transfer(address indexed from, address indexed to, uint256 value)",
     "event Approval(address indexed owner, address indexed spender, uint256 value)"
+  ] as const;
+
+  // ===== IMPACT POOL ABI =====
+  export const IMPACT_POOL_ABI = [
+    "function getUserBalance(address user) external view returns (uint256)",
+    "function getTotalPoolBalance() external view returns (uint256)",
+    "function getUserDonationRate(address user) external view returns (uint256)",
+    "function setDonationRate(uint256 rate) external",
+    "function getUserTotalDonated(address user) external view returns (uint256)",
+    "function getUserCertificateCount(address user) external view returns (uint256)",
+    "function getUserCertificates(address user, uint256 offset, uint256 limit) external view returns (tuple(uint256 id, uint256 amount, uint256 timestamp, bool isMinted, uint256 tokenId)[])",
+    "function mintCertificate(uint256 certificateId) external",
+    "function withdraw(uint256 amount) external",
+    "function donate(uint256 amount) external",
+    "event DonationRateUpdated(address indexed user, uint256 rate)",
+    "event CertificateMinted(address indexed user, uint256 certificateId, uint256 tokenId)",
+    "event Donation(address indexed user, uint256 amount)",
+    "event Withdrawal(address indexed user, uint256 amount)"
   ] as const;

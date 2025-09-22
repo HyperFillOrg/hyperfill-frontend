@@ -13,7 +13,11 @@ import {
   Play,
   Pause,
   BarChart3,
-  BookOpen
+  BookOpen,
+  Heart,
+  Users,
+  Globe,
+  HandHeart
 } from 'lucide-react';
 
 // Mock wallet hook for demo
@@ -145,7 +149,7 @@ const Button = ({ children, variant = 'default', size = 'default', className = '
     outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
     secondary: 'bg-secondary hover:bg-secondary/80 text-secondary-foreground',
     ghost: 'hover:bg-accent hover:text-accent-foreground',
-    terminal: 'bg-green-600 hover:bg-green-700 text-white font-mono'
+    success: 'bg-green-600 hover:bg-green-700 text-white'
   };
 
   const sizes = {
@@ -218,9 +222,9 @@ const OrderBookPanel = ({ symbol, orderbook, onRefresh, loading }) => {
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-base font-mono">ORDER_BOOK</CardTitle>
+        <CardTitle className="text-base">Order Book</CardTitle>
         <div className="flex items-center space-x-2">
-          <Badge variant="outline" className="font-mono text-xs">
+          <Badge variant="outline" className="text-xs">
             {symbol}
           </Badge>
           <Button
@@ -239,20 +243,20 @@ const OrderBookPanel = ({ symbol, orderbook, onRefresh, loading }) => {
           {/* Asks */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-mono text-red-400">ASKS</span>
-              <span className="text-xs font-mono text-muted-foreground">PRICE/SIZE/TOTAL</span>
+              <span className="text-xs text-red-600 font-medium">Asks</span>
+              <span className="text-xs text-muted-foreground">Price / Size / Total</span>
             </div>
             <div className="space-y-1 max-h-32 overflow-y-auto">
               {orderbook?.asks?.length > 0 ? (
                 orderbook.asks.map((ask, index) => (
-                  <div key={index} className="flex justify-between text-xs font-mono">
-                    <span className="text-red-400">{ask.price.toFixed(4)}</span>
+                  <div key={index} className="flex justify-between text-xs">
+                    <span className="text-red-600 font-medium">{ask.price.toFixed(4)}</span>
                     <span className="text-foreground">{ask.amount.toFixed(2)}</span>
                     <span className="text-muted-foreground">{ask.total.toFixed(2)}</span>
                   </div>
                 ))
               ) : (
-                <div className="text-xs text-muted-foreground font-mono">No asks</div>
+                <div className="text-xs text-muted-foreground">No asks available</div>
               )}
             </div>
           </div>
@@ -260,8 +264,8 @@ const OrderBookPanel = ({ symbol, orderbook, onRefresh, loading }) => {
           {/* Spread */}
           <div className="border-t border-b border-border py-2">
             <div className="text-center">
-              <span className="text-xs font-mono text-muted-foreground">
-                SPREAD: {orderbook?.asks?.[0] && orderbook?.bids?.[0]
+              <span className="text-xs text-muted-foreground">
+                Spread: {orderbook?.asks?.[0] && orderbook?.bids?.[0]
                   ? (orderbook.asks[0].price - orderbook.bids[0].price).toFixed(4)
                   : 'N/A'
                 }
@@ -272,20 +276,20 @@ const OrderBookPanel = ({ symbol, orderbook, onRefresh, loading }) => {
           {/* Bids */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-mono text-green-400">BIDS</span>
-              <span className="text-xs font-mono text-muted-foreground">PRICE/SIZE/TOTAL</span>
+              <span className="text-xs text-green-600 font-medium">Bids</span>
+              <span className="text-xs text-muted-foreground">Price / Size / Total</span>
             </div>
             <div className="space-y-1 max-h-32 overflow-y-auto">
               {orderbook?.bids?.length > 0 ? (
                 orderbook.bids.map((bid, index) => (
-                  <div key={index} className="flex justify-between text-xs font-mono">
-                    <span className="text-gray-300">{bid.price.toFixed(4)}</span>
+                  <div key={index} className="flex justify-between text-xs">
+                    <span className="text-green-600 font-medium">{bid.price.toFixed(4)}</span>
                     <span className="text-foreground">{bid.amount.toFixed(2)}</span>
                     <span className="text-muted-foreground">{bid.total.toFixed(2)}</span>
                   </div>
                 ))
               ) : (
-                <div className="text-xs text-muted-foreground font-mono">No bids</div>
+                <div className="text-xs text-muted-foreground">No bids available</div>
               )}
             </div>
           </div>
@@ -321,7 +325,7 @@ const TradingPanel = ({ account, onOrderSubmit, loading }) => {
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle className="text-base font-mono">PLACE_ORDER</CardTitle>
+        <CardTitle className="text-base">Place Order</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -333,7 +337,7 @@ const TradingPanel = ({ account, onOrderSubmit, loading }) => {
               onClick={() => setSide('buy')}
               className={side === 'buy' ? 'bg-green-600 hover:bg-green-700' : ''}
             >
-              BUY
+              Buy
             </Button>
             <Button
               type="button"
@@ -342,13 +346,13 @@ const TradingPanel = ({ account, onOrderSubmit, loading }) => {
               onClick={() => setSide('sell')}
               className={side === 'sell' ? 'bg-red-600 hover:bg-red-700' : ''}
             >
-              SELL
+              Sell
             </Button>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="base-asset" className="font-mono text-xs">BASE</Label>
+              <Label htmlFor="base-asset" className="text-sm">Base Asset</Label>
               <select
                 id="base-asset"
                 value={baseAsset}
@@ -361,7 +365,7 @@ const TradingPanel = ({ account, onOrderSubmit, loading }) => {
               </select>
             </div>
             <div>
-              <Label htmlFor="quote-asset" className="font-mono text-xs">QUOTE</Label>
+              <Label htmlFor="quote-asset" className="text-sm">Quote Asset</Label>
               <select
                 id="quote-asset"
                 value={quoteAsset}
@@ -375,7 +379,7 @@ const TradingPanel = ({ account, onOrderSubmit, loading }) => {
           </div>
 
           <div>
-            <Label htmlFor="price" className="font-mono text-xs">PRICE</Label>
+            <Label htmlFor="price" className="text-sm">Price</Label>
             <Input
               id="price"
               type="number"
@@ -383,12 +387,11 @@ const TradingPanel = ({ account, onOrderSubmit, loading }) => {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="0.0000"
-              className="font-mono"
             />
           </div>
 
           <div>
-            <Label htmlFor="quantity" className="font-mono text-xs">QUANTITY</Label>
+            <Label htmlFor="quantity" className="text-sm">Quantity</Label>
             <Input
               id="quantity"
               type="number"
@@ -396,12 +399,11 @@ const TradingPanel = ({ account, onOrderSubmit, loading }) => {
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               placeholder="0.00"
-              className="font-mono"
             />
           </div>
 
           {price && quantity && (
-            <div className="text-xs font-mono text-muted-foreground">
+            <div className="text-xs text-muted-foreground">
               Total: {(parseFloat(price) * parseFloat(quantity)).toFixed(4)} {quoteAsset}
             </div>
           )}
@@ -411,11 +413,11 @@ const TradingPanel = ({ account, onOrderSubmit, loading }) => {
               console.log
             }}
             type="submit"
-            className="w-full font-mono"
+            className="w-full"
             disabled={loading || !account || !price || !quantity}
             variant={side === 'buy' ? 'default' : 'destructive'}
           >
-            {loading ? 'SUBMITTING...' : `${side.toUpperCase()} ${baseAsset}`}
+            {loading ? 'Submitting...' : `${side.charAt(0).toUpperCase() + side.slice(1)} ${baseAsset}`}
           </Button>
         </form>
       </CardContent>
@@ -425,24 +427,52 @@ const TradingPanel = ({ account, onOrderSubmit, loading }) => {
 
 const AgentStatusPanel = ({ onStartAgent, agentRunning, agentLoading }) => {
   const agents = [
-    { name: 'Buffett', status: agentRunning ? 'ACTIVE' : 'STANDBY', pnl: '+12.3%', trades: 47 },
-    { name: 'Lynch', status: agentRunning ? 'ACTIVE' : 'STANDBY', pnl: '+8.9%', trades: 23 },
-    { name: 'Dalio', status: agentRunning ? 'ACTIVE' : 'STANDBY', pnl: '+15.7%', trades: 31 },
-    { name: 'Belfort', status: agentRunning ? 'ACTIVE' : 'STANDBY', pnl: '+22.1%', trades: 89 }
+    {
+      name: 'Value Strategy',
+      status: agentRunning ? 'ACTIVE' : 'STANDBY',
+      pnl: '+12.3%',
+      trades: 47,
+      strategy: 'Fundamental Analysis',
+      message: "Buy assets trading below intrinsic value based on fundamentals, not hype."
+    },
+    {
+      name: 'Growth Strategy',
+      status: agentRunning ? 'ACTIVE' : 'STANDBY',
+      pnl: '+8.9%',
+      trades: 23,
+      strategy: 'Expansion Analysis',
+      message: "Focus on projects with strong user adoption and expanding market share."
+    },
+    {
+      name: 'Risk Strategy',
+      status: agentRunning ? 'ACTIVE' : 'STANDBY',
+      pnl: '+15.7%',
+      trades: 31,
+      strategy: 'Portfolio Diversification',
+      message: "Spread investments across sectors to minimize correlated losses."
+    },
+    {
+      name: 'Technical Strategy',
+      status: agentRunning ? 'ACTIVE' : 'STANDBY',
+      pnl: '+22.1%',
+      trades: 89,
+      strategy: 'Market Analysis',
+      message: "Use price patterns and volume to time market entries and exits."
+    }
   ];
 
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-base font-mono">
-          AI_AGENTS
+        <CardTitle className="text-base">
+          Trading Agents
         </CardTitle>
         <Button
-          variant={agentRunning ? "destructive" : "terminal"}
+          variant={agentRunning ? "destructive" : "default"}
           size="sm"
           onClick={onStartAgent}
           disabled={agentLoading}
-          className="font-mono text-xs"
+          className="text-xs"
         >
           {agentLoading ? (
             <RefreshCw className="h-3 w-3 animate-spin mr-1" />
@@ -451,25 +481,38 @@ const AgentStatusPanel = ({ onStartAgent, agentRunning, agentLoading }) => {
           ) : (
             <Play className="h-3 w-3 mr-1" />
           )}
-          {agentLoading ? 'INIT...' : agentRunning ? 'STOP' : 'START'}
+          {agentLoading ? 'Loading...' : agentRunning ? 'Stop' : 'Start'}
         </Button>
       </CardHeader>
       <CardContent className="pt-2">
-        <div className="space-y-3">
+        <div className="space-y-4">
           {agents.map((agent, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${agent.status === 'ACTIVE' ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`}></div>
-                <span className="text-sm font-mono">{agent.name}</span>
-                <Badge variant={agent.status === 'ACTIVE' ? 'success' : 'secondary'} className="text-xs">
-                  {agent.status}
-                </Badge>
-              </div>
-              <div className="text-xs font-mono text-right">
-                <div className={`${agent.pnl.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
-                  {agent.pnl}
+            <div key={index} className="border border-border rounded-lg p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className={`w-2 h-2 rounded-full ${agent.status === 'ACTIVE' ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+                  <span className="text-sm font-medium">{agent.name}</span>
+                  <Badge variant={agent.status === 'ACTIVE' ? 'success' : 'secondary'} className="text-xs">
+                    {agent.status.toLowerCase()}
+                  </Badge>
                 </div>
-                <div className="text-muted-foreground">{agent.trades} trades</div>
+                <div className="text-xs text-right">
+                  <div className={`font-medium ${agent.pnl.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                    {agent.pnl}
+                  </div>
+                  <div className="text-muted-foreground">{agent.trades} trades</div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-primary">{agent.strategy}</span>
+                </div>
+                <div className="bg-muted/30 rounded p-3 border border-border/50">
+                  <p className="text-xs text-foreground leading-relaxed">
+                    {agent.message}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
@@ -491,16 +534,16 @@ const TerminalLog = ({ logs }) => {
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-mono flex items-center gap-2">
-          <Activity className="h-4 w-4 text-green-400" />
-          TERMINAL_LOG
+        <CardTitle className="text-base flex items-center gap-2">
+          <Activity className="h-4 w-4" />
+          Activity Log
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-2">
-        <div ref={logRef} className="h-48 overflow-y-auto bg-black/20 rounded p-2 font-mono text-xs">
+        <div ref={logRef} className="h-48 overflow-y-auto bg-muted/30 rounded p-3 text-xs">
           {logs.map((log, index) => (
-            <div key={index} className={`mb-1 ${log.type === 'error' ? 'text-red-400' : log.type === 'success' ? 'text-green-400' : 'text-foreground'}`}>
-              <span className="text-muted-foreground">[{log.timestamp}]</span> {log.message}
+            <div key={index} className={`mb-2 ${log.type === 'error' ? 'text-red-600' : log.type === 'success' ? 'text-green-600' : 'text-foreground'}`}>
+              <span className="text-muted-foreground">{log.timestamp}</span> {log.message}
             </div>
           ))}
         </div>
@@ -521,28 +564,28 @@ const MarketStats = ({ symbol, orderbook }) => {
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-mono flex items-center gap-2">
-          <BarChart3 className="h-4 w-4 text-blue-400" />
-          MARKET_STATS
+        <CardTitle className="text-base flex items-center gap-2">
+          <BarChart3 className="h-4 w-4" />
+          Market Statistics
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-2">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <div className="text-xs text-muted-foreground font-mono">LAST_PRICE</div>
-            <div className="text-lg font-mono text-foreground">{stats.lastPrice.toFixed(4)}</div>
+            <div className="text-xs text-muted-foreground">Last Price</div>
+            <div className="text-lg font-semibold text-foreground">{stats.lastPrice.toFixed(4)}</div>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground font-mono">24H_CHANGE</div>
-            <div className="text-lg font-mono text-green-400">{stats.change24h}</div>
+            <div className="text-xs text-muted-foreground">24H Change</div>
+            <div className="text-lg font-semibold text-green-600">{stats.change24h}</div>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground font-mono">24H_VOLUME</div>
-            <div className="text-lg font-mono text-foreground">{stats.volume24h}</div>
+            <div className="text-xs text-muted-foreground">24H Volume</div>
+            <div className="text-lg font-semibold text-foreground">{stats.volume24h}</div>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground font-mono">24H_RANGE</div>
-            <div className="text-sm font-mono text-foreground">{stats.low24h} - {stats.high24h}</div>
+            <div className="text-xs text-muted-foreground">24H Range</div>
+            <div className="text-sm font-medium text-foreground">{stats.low24h} - {stats.high24h}</div>
           </div>
         </div>
       </CardContent>
@@ -663,189 +706,158 @@ export function TradingTerminal() {
   }, [isConnected, account]);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-300 p-2 font-mono max-w-7xl mx-auto">
-      {/* Terminal Header */}
-      <div className="bg-gray-900 border border-gray-700 rounded-t-lg p-2 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <div className="flex space-x-1">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+    <div className="space-y-6">
+
+      {/* Impact Banner */}
+      <div className="bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-950/30 dark:to-green-950/30 border border-border rounded-lg p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-full">
+              <HandHeart className="h-4 w-4 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-medium">Trading with Purpose</h3>
+              <p className="text-xs text-muted-foreground">Your profits contribute to verified social impact projects</p>
+            </div>
           </div>
-          <Terminal className="h-4 w-4 text-gray-300" />
-          <span className="text-sm text-gray-300">hyperfill-terminal</span>
+          <div className="flex items-center space-x-4 text-xs">
+            <div className="flex items-center space-x-1">
+              <Users className="h-3 w-3 text-blue-500" />
+              <span className="text-muted-foreground">2,847 beneficiaries</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Globe className="h-3 w-3 text-green-500" />
+              <span className="text-muted-foreground">15 countries</span>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div className="flex items-center space-x-3">
-          <Button variant="outline" size="sm" onClick={() => addLog('Settings panel opened')}>
-            <Settings className="h-4 w-4" />
-          </Button>
+      {/* Connection Status - Only show alerts for issues */}
+      {!isConnected && (
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-destructive" />
+            <span className="text-sm font-medium">Wallet Not Connected</span>
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">
+            Please connect your wallet to access trading features and contribute to impact projects.
+          </p>
+        </div>
+      )}
 
-          {/* Network Warning */}
-          {isConnected && !isOnHederaTestnet && (
+      {isConnected && !isOnHederaTestnet && (
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              <span className="text-sm font-medium">Wrong Network</span>
+            </div>
             <Button
               onClick={switchToHederaTestnet}
               variant="destructive"
               size="sm"
-              className="flex items-center gap-2 font-mono text-xs"
+              className="flex items-center gap-2"
             >
-              <AlertTriangle className="h-4 w-4" />
-              WRONG_NETWORK
+              Switch to Hedera Testnet
             </Button>
-          )}
-
-
-          <div className="flex items-center space-x-2 text-gray-300">
-            <Power className="h-4 w-4" />
-            <span className="text-sm font-mono">
-              {isConnected && isOnHederaTestnet ? "ONLINE" : "OFFLINE"}
-            </span>
           </div>
+          <p className="text-sm text-muted-foreground mt-1">
+            Please switch to Hedera Testnet to access trading features.
+          </p>
         </div>
-      </div>
+      )}
 
-      {/* Terminal Content */}
-      <div className="bg-gray-950 border border-t-0 border-gray-700 rounded-b-lg p-4 min-h-[calc(100vh-100px)]">
-        {/* ASCII Header */}
-        <div className="text-gray-300 font-mono text-xs mb-6 leading-tight">
-          <pre>{`
-██╗  ██╗██╗   ██╗██████╗ ███████╗██████╗ ███████╗██╗██╗     ██╗     
-██║  ██║╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗██╔════╝██║██║     ██║     
-███████║ ╚████╔╝ ██████╔╝█████╗  ██████╔╝█████╗  ██║██║     ██║     
-██╔══██║  ╚██╔╝  ██╔═══╝ ██╔══╝  ██╔══██╗██╔══╝  ██║██║     ██║     
-██║  ██║   ██║   ██║     ███████╗██║  ██║██║     ██║███████╗███████╗
-╚═╝  ╚═╝   ╚═╝   ╚═╝     ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚══════╝
-                                                                      
-[SYSTEM] HyperFill Autonomous Trading Terminal v2.1.0
-[SYSTEM] Connected to Hedera Network (testnet) 
-[SYSTEM] AI Trading Collective: Buffett, Belfort, Lynch & Dalio
-[SYSTEM] Vault Status: ${isConnected && isOnHederaTestnet ? 'ACTIVE' : 'STANDBY'} | Network: ${isOnHederaTestnet ? 'HEDERA-TESTNET' : 'UNKNOWN'}
-[SYSTEM] "We make money while you sleep" - The HyperFill Team
-          `}</pre>
+      {/* Main Trading Interface */}
+      <div className="space-y-6">
+
+        {/* Top Row - Trading and Agents */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <AgentStatusPanel
+            onStartAgent={handleStartAgent}
+            agentRunning={agentRunning}
+            agentLoading={agentLoading}
+          />
+          <TradingPanel
+            account={account}
+            onOrderSubmit={handleOrderSubmit}
+            loading={loading}
+          />
         </div>
 
-        {/* Connection Status */}
-        {!isConnected && (
-          <div className="mb-4 p-3 bg-red-900/20 border border-red-400/20 rounded font-mono text-xs">
-            <span className="text-red-400">[ERROR]</span>
-            <span className="text-gray-400"> No wallet connection detected. Execute </span>
-            <span className="text-gray-300">connect-wallet</span>
-            <span className="text-gray-400"> to establish connection.</span>
-          </div>
-        )}
-
-        {/* Terminal Prompt */}
-        <div className="mb-4 text-sm font-mono">
-          <span className="text-gray-300">hyperfill@hedera</span>
-          <span className="text-gray-400">:</span>
-          <span className="text-red-400">~/vault</span>
-          <span className="text-gray-400">$ </span>
-          <span className="text-gray-300">status --agents --detailed</span>
+        {/* Middle Row - Order Book and Market Stats */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <OrderBookPanel
+            symbol={currentSymbol}
+            orderbook={orderbook}
+            onRefresh={loadOrderbook}
+            loading={loading}
+          />
+          <MarketStats
+            symbol={currentSymbol}
+            orderbook={orderbook}
+          />
         </div>
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-12 gap-4 mb-6">
-          {/* Left Column - AI Agents */}
-          <div className="col-span-6">
-            <AgentStatusPanel
-              onStartAgent={handleStartAgent}
-              agentRunning={agentRunning}
-              agentLoading={agentLoading}
-            />
-          </div>
-
-          {/* Right Column - Trading Panel */}
-          <div className="col-span-6">
-            <TradingPanel
-              account={account}
-              onOrderSubmit={handleOrderSubmit}
-              loading={loading}
-            />
-          </div>
+        {/* Bottom Row - Activity Log */}
+        <div className="grid grid-cols-1 gap-6">
+          <TerminalLog logs={logs} />
         </div>
 
-        {/* Middle Row */}
-        <div className="grid grid-cols-12 gap-4 mb-6">
-          {/* Left - Order Book */}
-          <div className="col-span-6">
-            <OrderBookPanel
-              symbol={currentSymbol}
-              orderbook={orderbook}
-              onRefresh={loadOrderbook}
-              loading={loading}
-            />
-          </div>
-
-          {/* Right - Market Stats */}
-          <div className="col-span-6">
-            <MarketStats
-              symbol={currentSymbol}
-              orderbook={orderbook}
-            />
-          </div>
-        </div>
-
-        {/* Bottom Row - Terminal Log */}
-        <div className="grid grid-cols-12 gap-4 mb-6">
-          <div className="col-span-12">
-            <TerminalLog logs={logs} />
-          </div>
-        </div>
-
-        {/* Bottom Terminal Commands */}
-        <div className="border-t border-green-400/30 pt-4">
-          <div className="flex items-center space-x-4 mb-3">
+        {/* Quick Actions */}
+        <div className="flex items-center justify-between border-t border-border pt-6">
+          <div className="flex items-center space-x-4">
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className="text-xs font-mono hover:bg-green-400/10 text-green-400"
               onClick={loadOrderbook}
               disabled={loading}
+              className="text-sm"
             >
-              <BookOpen className="h-3 w-3 mr-1" />
-              ./refresh-orderbook
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh Data
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              className="text-xs font-mono hover:bg-green-400/10 text-green-400"
-              onClick={() => addLog('Config panel opened')}
+              onClick={() => addLog('Settings accessed')}
+              className="text-sm"
             >
-              <Settings className="h-3 w-3 mr-1" />
-              ./config
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
             </Button>
-            <div className="flex items-center space-x-2 text-green-400 text-xs font-mono">
-              <Power className="h-3 w-3" />
-              <span>DAEMON {isConnected && isOnHederaTestnet ? 'RUNNING' : 'STANDBY'}</span>
-            </div>
           </div>
-
-          <div className="text-xs font-mono text-green-400">
-            <span className="text-gray-300">hyperfill@hedera</span>
-            <span className="text-gray-400">:</span>
-            <span className="text-red-400">~/vault</span>
-            <span className="text-gray-400">$ </span>
-            <span className="animate-pulse">_</span>
+          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <div className={`w-2 h-2 rounded-full ${isConnected && isOnHederaTestnet ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <span>System {isConnected && isOnHederaTestnet ? 'Active' : 'Standby'}</span>
           </div>
         </div>
       </div>
 
-      {/* Status Bar */}
-      <div className="flex items-center justify-between text-xs font-mono mt-2 px-2 py-1 bg-gray-800/50 border border-green-400/30 rounded">
-        <div className="flex items-center space-x-4">
-          <span className={isConnected && isOnHederaTestnet ? "text-white" : "text-red-400"}>●</span>
-          <span className="text-gray-300">{isOnHederaTestnet ? "HEDERA TESTNET" : "DISCONNECTED"}</span>
-          <span className="text-gray-400">|</span>
-          <span className="text-gray-300">STATUS: {isConnected ? (isOnHederaTestnet ? "ACTIVE" : "WRONG_NET") : "OFFLINE"}</span>
-          <span className="text-gray-400">|</span>
-          <span className="text-gray-300">WALLET: {isConnected ? "CONNECTED" : "NONE"}</span>
-        </div>
-        <div className="flex items-center space-x-4">
-          <span className="text-gray-300">LATENCY: {isConnected ? "47ms" : "∞"}</span>
-          <span className="text-gray-400">|</span>
-          <span className="text-gray-300">AGENTS: {agentRunning ? "4/4" : "0/4"}</span>
-          <span className="text-gray-400">|</span>
-          <span className="text-gray-300">ORDERS: {orderbook ? (orderbook.asks?.length || 0) + (orderbook.bids?.length || 0) : 0}</span>
+      {/* Status Footer */}
+      <div className="bg-muted/30 border border-border rounded-lg p-3 mt-6">
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${isConnected && isOnHederaTestnet ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <span className="text-muted-foreground">Network:</span>
+              <span className="font-medium">{isOnHederaTestnet ? 'Hedera Testnet' : 'Disconnected'}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-muted-foreground">Agents:</span>
+              <span className="font-medium">{agentRunning ? '4/4 Active' : '0/4 Active'}</span>
+            </div>
+          </div>
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2">
+              <span className="text-muted-foreground">Orders:</span>
+              <span className="font-medium">{orderbook ? (orderbook.asks?.length || 0) + (orderbook.bids?.length || 0) : 0}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-muted-foreground">Latency:</span>
+              <span className="font-medium">{isConnected ? '47ms' : '—'}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, RefreshCw, TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-react';
+import { Loader2, RefreshCw, TrendingUp, TrendingDown, Wallet, PiggyBank, Heart } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import { useVault } from '@/hooks/useVault';
 
@@ -19,6 +19,7 @@ export const VaultDashboard = () => {
   const [depositAmount, setDepositAmount] = useState('');
   const [isDepositing, setIsDepositing] = useState(false);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [donationPercentage, setDonationPercentage] = useState(5);
 
   const handleDeposit = async () => {
     if (!depositAmount || parseFloat(depositAmount) <= 0) {
@@ -299,7 +300,7 @@ export const VaultDashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="p-4 bg-muted rounded-lg">
+            <div className="p-4 bg-muted rounded-lg space-y-3">
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm">Your Shares:</span>
@@ -312,6 +313,44 @@ export const VaultDashboard = () => {
                   <span className="text-sm font-medium">
                     {stats ? (parseFloat(stats.userShares) * parseFloat(stats.sharePrice)).toFixed(4) : '0.0000'}
                   </span>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Heart className="h-4 w-4 text-success" />
+                  <Label className="text-sm font-medium">Impact Donation</Label>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    {[0, 5, 10].map((percentage) => (
+                      <Button
+                        key={percentage}
+                        variant={donationPercentage === percentage ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setDonationPercentage(percentage)}
+                        className="text-xs flex-1"
+                      >
+                        {percentage}%
+                      </Button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {donationPercentage > 0
+                      ? `${donationPercentage}% of withdrawn profits will be donated to verified social impact projects on Hedera. This creates transparency through blockchain verification and helps fund education, clean energy, and financial inclusion initiatives worldwide.`
+                      : "No donation will be made from withdrawn profits."
+                    }
+                  </p>
+                  {donationPercentage > 0 && stats && (
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Donation amount:</span>
+                      <span className="font-medium text-success">
+                        {((parseFloat(stats.userShares) * parseFloat(stats.sharePrice)) * donationPercentage / 100).toFixed(4)} WHBAR
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
