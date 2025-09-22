@@ -210,12 +210,12 @@ export const ImpactPool = ({
             <div className="flex items-start justify-between">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <h4 className="font-semibold">Celo Foundation</h4>
+                  <h4 className="font-semibold">Climate Collective</h4>
                 </div>
-                <p className="text-sm text-muted-foreground">Financial inclusion</p>
-                <p className="text-sm">Building accessible financial tools for underbanked communities worldwide</p>
+                <p className="text-sm text-muted-foreground">Climate action and sustainability</p>
+                <p className="text-sm">Supporting global climate initiatives and sustainable development projects</p>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => window.open('https://celo.org', '_blank')}>
+              <Button variant="ghost" size="sm" onClick={() => window.open('https://climatecollective.org', '_blank')}>
                 <ExternalLink className="h-4 w-4" />
               </Button>
             </div>
