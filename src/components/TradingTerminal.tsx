@@ -20,43 +20,7 @@ import {
   HandHeart
 } from 'lucide-react';
 
-// Mock wallet hook for demo
-const useWallet = () => {
-  const [isConnected, setIsConnected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [account, setAccount] = useState(null);
-  const [isOnHederaTestnet, setIsOnHederaTestnet] = useState(false);
-
-  const connect = async () => {
-    setIsConnecting(true);
-    setTimeout(() => {
-      setAccount('0x123456789abcdef123456789abcdef123456789a');
-      setIsConnected(true);
-      setIsOnHederaTestnet(true);
-      setIsConnecting(false);
-    }, 1500);
-  };
-
-  const disconnect = () => {
-    setAccount(null);
-    setIsConnected(false);
-    setIsOnHederaTestnet(false);
-  };
-
-  const switchToHederaTestnet = () => {
-    setIsOnHederaTestnet(true);
-  };
-
-  return {
-    account,
-    isConnected,
-    isConnecting,
-    connect,
-    disconnect,
-    isOnHederaTestnet,
-    switchToHederaTestnet
-  };
-};
+import { useWallet } from '@/hooks/useWallet';
 
 // API Configuration
 const API_BASE_URL = import.meta.env?.VITE_ORDERBOOK_API_URL || 'http://localhost:8001';

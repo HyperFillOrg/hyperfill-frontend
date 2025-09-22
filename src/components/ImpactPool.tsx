@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Heart, Users, Globe, Award, ExternalLink, Download, Shield, Plus, CheckCircle } from 'lucide-react';
+import { CONTRACTS } from '@/lib/contracts';
 
 interface ImpactPoolProps {
   userBalance: string;
@@ -158,15 +159,11 @@ export const ImpactPool = ({
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <h4 className="font-semibold">The Giving Block</h4>
-                  <Badge variant="outline" className="text-xs">
-                    <Shield className="h-3 w-3 mr-1" />
-                    Hedera Partner
-                  </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">Cryptocurrency donations for nonprofits</p>
                 <p className="text-sm">Enabling crypto donations to verified nonprofits worldwide through blockchain technology</p>
               </div>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={() => window.open('https://thegivingblock.com', '_blank')}>
                 <ExternalLink className="h-4 w-4" />
               </Button>
             </div>
@@ -188,15 +185,11 @@ export const ImpactPool = ({
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <h4 className="font-semibold">Power Ledger Foundation</h4>
-                  <Badge variant="outline" className="text-xs">
-                    <Shield className="h-3 w-3 mr-1" />
-                    Hedera Partner
-                  </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">Renewable energy access</p>
                 <p className="text-sm">Democratizing access to renewable energy through blockchain-powered microgrids</p>
               </div>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={() => window.open('https://www.powerledger.io', '_blank')}>
                 <ExternalLink className="h-4 w-4" />
               </Button>
             </div>
@@ -218,15 +211,11 @@ export const ImpactPool = ({
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <h4 className="font-semibold">Celo Foundation</h4>
-                  <Badge variant="outline" className="text-xs">
-                    <Shield className="h-3 w-3 mr-1" />
-                    Hedera Partner
-                  </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">Financial inclusion</p>
                 <p className="text-sm">Building accessible financial tools for underbanked communities worldwide</p>
               </div>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={() => window.open('https://celo.org', '_blank')}>
                 <ExternalLink className="h-4 w-4" />
               </Button>
             </div>
@@ -286,7 +275,14 @@ export const ImpactPool = ({
                         {minting ? 'Minting...' : 'Mint'}
                       </Button>
                     )}
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => cert.isMinted && cert.tokenId ?
+                        window.open(`https://hashscan.io/testnet/token/${CONTRACTS.IMPACT_CERTIFICATE_ADDRESS}/${cert.tokenId}`, '_blank') :
+                        window.open(`https://hashscan.io/testnet/contract/${CONTRACTS.IMPACT_CERTIFICATE_ADDRESS}`, '_blank')
+                      }
+                    >
                       <ExternalLink className="h-4 w-4 mr-2" />
                       Verify
                     </Button>
