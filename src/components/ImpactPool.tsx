@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useImpactCertificate } from '@/hooks/useImpactCertificate';
+import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Heart, Users, Globe, Award, ExternalLink, Download, Shield, Plus } from 'lucide-react';
+import { Heart, Users, Globe, Award, ExternalLink, Download, Shield, Plus, CheckCircle } from 'lucide-react';
 
 interface ImpactPoolProps {
   userBalance: string;
@@ -25,6 +27,8 @@ export const ImpactPool = ({
 }: ImpactPoolProps) => {
   const [customRate, setCustomRate] = useState(userDonationRate.toString());
   const [isCustomizing, setIsCustomizing] = useState(false);
+  const { stats, loading, minting, mintCertificate } = useImpactCertificate();
+  const { toast } = useToast();
 
   const handleRateUpdate = (rate: number) => {
     onUpdateDonationRate(rate);
@@ -35,6 +39,30 @@ export const ImpactPool = ({
     const rate = parseFloat(customRate);
     if (rate >= 0 && rate <= 100) {
       handleRateUpdate(rate);
+    }
+  };
+
+  const handleMintCertificate = async (certificateId: number) => {
+    try {
+      const result = await mintCertificate(certificateId);
+      if (result.success) {
+        toast({
+          title: "Certificate Minted",
+          description: `Impact Certificate #${certificateId} has been minted successfully!`,
+        });
+      } else {
+        toast({
+          title: "Minting Failed",
+          description: result.error || "Failed to mint certificate",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while minting",
+        variant: "destructive",
+      });
     }
   };
 
@@ -229,47 +257,47 @@ export const ImpactPool = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
-              <div>
-                <p className="font-medium">Certificate #156</p>
-                <p className="text-sm text-muted-foreground">
-                  $127.30 donated • December 2024
-                </p>
+            {loading ? (
+              <div className="text-center py-4">Loading certificates...</div>
+            ) : stats?.certificates.length ? (
+              stats.certificates.map((cert) => (
+                <div key={cert.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
+                  <div>
+                    <p className="font-medium">Certificate #{cert.id}</p>
+                    <p className="text-sm text-muted-foreground">
+                      ${cert.amount} donated • {new Date(cert.timestamp * 1000).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{cert.projectName}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    {cert.isMinted ? (
+                      <Button variant="outline" size="sm" disabled>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Minted
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleMintCertificate(cert.id)}
+                        disabled={minting}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        {minting ? 'Minting...' : 'Mint'}
+                      </Button>
+                    )}
+                    <Button variant="outline" size="sm">
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Verify
+                    </Button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4 text-muted-foreground">
+                No certificates available
               </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onWithdrawCertificate('cert_156')}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Mint
-                </Button>
-                <Button variant="outline" size="sm">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Verify
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
-              <div>
-                <p className="font-medium">Certificate #155</p>
-                <p className="text-sm text-muted-foreground">
-                  $98.45 donated • November 2024
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Minted
-                </Button>
-                <Button variant="outline" size="sm">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Verify
-                </Button>
-              </div>
-            </div>
+            )}
           </div>
         </CardContent>
       </Card>
