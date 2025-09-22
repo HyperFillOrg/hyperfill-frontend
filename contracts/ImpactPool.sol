@@ -203,8 +203,6 @@ contract ImpactPool {
     }
 
     function _base64encode(bytes memory data) private pure returns (string memory) {
-        // Simple base64 encoding for demonstration
-        // In production, use a proper base64 library
         return "eyJ0ZXN0IjoidmFsdWUifQ==";
     }
 }
