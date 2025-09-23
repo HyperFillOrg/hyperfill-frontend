@@ -8,19 +8,19 @@ import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
-  const { stats, updateDonationRate, mintCertificate } = useImpactPool();
+  const { stats, donateToPool, mintCertificate } = useImpactPool();
   const { toast } = useToast();
 
-  const handleDonationRateUpdate = async (rate: number) => {
-    const result = await updateDonationRate(rate);
+  const handleDonation = async (amount: string) => {
+    const result = await donateToPool(amount);
     if (result.success) {
       toast({
-        title: "Donation rate updated",
-        description: `Now donating ${rate}% of yield to impact projects`,
+        title: "Donation successful",
+        description: `Successfully donated ${amount} WHBAR to impact projects`,
       });
     } else {
       toast({
-        title: "Update failed",
+        title: "Donation failed",
         description: result.error,
         variant: "destructive",
       });
@@ -73,8 +73,7 @@ const Index = () => {
             <ImpactPool
               userBalance={stats?.userBalance || "0.00"}
               totalPoolBalance={stats?.totalPoolBalance || "15,847.32"}
-              userDonationRate={stats?.userDonationRate || 10}
-              onUpdateDonationRate={handleDonationRateUpdate}
+              onDonateAmount={handleDonation}
               onWithdrawCertificate={handleCertificateMint}
             />
           </TabsContent>

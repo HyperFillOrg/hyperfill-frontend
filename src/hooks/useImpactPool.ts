@@ -173,6 +173,48 @@ export const useImpactPool = () => {
     }
   }, [signer, getContracts, fetchStats]);
 
+  const donateToPool = useCallback(async (amount: string): Promise<DonationResult> => {
+    if (!signer) {
+      return { success: false, error: 'No signer available' };
+    }
+
+    try {
+      setLoading(true);
+      const contracts = getContracts();
+      if (!contracts) return { success: false, error: 'Failed to get contracts' };
+
+      const { impactPoolContract } = contracts;
+      const amountWei = ethers.parseEther(amount);
+
+      const tx = await impactPoolContract.donate(amountWei, {
+        value: amountWei,
+        gasLimit: 300000,
+      });
+
+      const receipt = await tx.wait();
+
+      await fetchStats();
+
+      return {
+        success: true,
+        txHash: tx.hash,
+      };
+    } catch (error: any) {
+      console.error('Error donating to pool:', error);
+      let errorMessage = 'Unknown error occurred';
+
+      if (error.reason) {
+        errorMessage = error.reason;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  }, [signer, getContracts, fetchStats]);
+
   const withdrawFromPool = useCallback(async (amount: string): Promise<DonationResult> => {
     if (!signer) {
       return { success: false, error: 'No signer available' };
@@ -227,6 +269,7 @@ export const useImpactPool = () => {
     loading,
     refreshing,
     updateDonationRate,
+    donateToPool,
     mintCertificate,
     withdrawFromPool,
     refreshStats: fetchStats,

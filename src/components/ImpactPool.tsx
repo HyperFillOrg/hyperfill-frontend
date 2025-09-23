@@ -14,32 +14,27 @@ import { CONTRACTS } from '@/lib/contracts';
 interface ImpactPoolProps {
   userBalance: string;
   totalPoolBalance: string;
-  userDonationRate: number;
-  onUpdateDonationRate: (rate: number) => void;
+  onDonateAmount: (amount: string) => void;
   onWithdrawCertificate: (certificateId: string) => void;
 }
 
 export const ImpactPool = ({
   userBalance,
   totalPoolBalance,
-  userDonationRate,
-  onUpdateDonationRate,
+  onDonateAmount,
   onWithdrawCertificate
 }: ImpactPoolProps) => {
-  const [customRate, setCustomRate] = useState(userDonationRate.toString());
-  const [isCustomizing, setIsCustomizing] = useState(false);
+  const [donationAmount, setDonationAmount] = useState('');
+  const [isDonating, setIsDonating] = useState(false);
   const { stats, loading, minting, mintCertificate } = useImpactCertificate();
   const { toast } = useToast();
 
-  const handleRateUpdate = (rate: number) => {
-    onUpdateDonationRate(rate);
-    setIsCustomizing(false);
-  };
-
-  const handleCustomRateSubmit = () => {
-    const rate = parseFloat(customRate);
-    if (rate >= 0 && rate <= 100) {
-      handleRateUpdate(rate);
+  const handleDonationSubmit = () => {
+    const amount = parseFloat(donationAmount);
+    if (amount > 0) {
+      onDonateAmount(donationAmount);
+      setDonationAmount('');
+      setIsDonating(false);
     }
   };
 
@@ -76,7 +71,7 @@ export const ImpactPool = ({
             Impact Pool Contribution
           </CardTitle>
           <CardDescription>
-            Automatically donate a percentage of your vault yield to verified social impact projects
+            Make direct donations to verified social impact projects and earn impact certificates
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -95,35 +90,35 @@ export const ImpactPool = ({
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label>Donation Rate</Label>
+              <Label>Make a Donation</Label>
               <Badge variant="outline" className="text-success border-success">
-                {userDonationRate}% of yield
+                Direct Contribution
               </Badge>
             </div>
 
-            {!isCustomizing ? (
+            {!isDonating ? (
               <div className="space-y-3">
-                <div className="grid grid-cols-5 gap-2">
-                  {[0, 5, 10, 15, 25].map((rate) => (
+                <div className="grid grid-cols-4 gap-2">
+                  {[10, 25, 50, 100].map((amount) => (
                     <Button
-                      key={rate}
-                      variant={userDonationRate === rate ? "default" : "outline"}
+                      key={amount}
+                      variant="outline"
                       size="sm"
-                      onClick={() => handleRateUpdate(rate)}
+                      onClick={() => onDonateAmount(amount.toString())}
                       className="text-xs"
                     >
-                      {rate}%
+                      ${amount}
                     </Button>
                   ))}
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setIsCustomizing(true)}
+                  onClick={() => setIsDonating(true)}
                   className="w-full"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Custom Rate
+                  Custom Amount
                 </Button>
               </div>
             ) : (
@@ -131,13 +126,13 @@ export const ImpactPool = ({
                 <Input
                   type="number"
                   min="0"
-                  max="100"
-                  value={customRate}
-                  onChange={(e) => setCustomRate(e.target.value)}
-                  placeholder="Enter rate %"
+                  step="0.01"
+                  value={donationAmount}
+                  onChange={(e) => setDonationAmount(e.target.value)}
+                  placeholder="Enter amount (WHBAR)"
                 />
-                <Button onClick={handleCustomRateSubmit}>Apply</Button>
-                <Button variant="outline" onClick={() => setIsCustomizing(false)}>
+                <Button onClick={handleDonationSubmit}>Donate</Button>
+                <Button variant="outline" onClick={() => setIsDonating(false)}>
                   Cancel
                 </Button>
               </div>
