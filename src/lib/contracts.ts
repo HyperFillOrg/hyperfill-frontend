@@ -91,13 +91,13 @@ export const VAULT_ABI = [
     "function getUserDonationRate(address user) external view returns (uint256)",
     "function setDonationRate(uint256 rate) external",
     "function getUserTotalDonated(address user) external view returns (uint256)",
-    "function getUserCertificateCount(address user) external view returns (uint256)",
-    "function getUserCertificates(address user, uint256 offset, uint256 limit) external view returns (tuple(uint256 id, uint256 amount, uint256 timestamp, bool isMinted, uint256 tokenId)[])",
-    "function mintCertificate(uint256 certificateId) external",
+    "function getUserDonationCount(address user) external view returns (uint256)",
+    "function getUserDonation(address user, uint256 index) external view returns (tuple(uint256 amount, uint256 timestamp, bool certificateIssued, uint256 certificateId))",
+    "function issueCertificate(uint256 donationIndex) external",
     "function withdraw(uint256 amount) external",
     "function donate(uint256 amount) external",
     "event DonationRateUpdated(address indexed user, uint256 rate)",
-    "event CertificateMinted(address indexed user, uint256 certificateId, uint256 tokenId)",
-    "event Donation(address indexed user, uint256 amount)",
+    "event CertificateIssued(address indexed user, uint256 donationIndex, uint256 certificateId)",
+    "event DonationMade(address indexed user, uint256 amount, uint256 timestamp)",
     "event Withdrawal(address indexed user, uint256 amount)"
   ] as const;

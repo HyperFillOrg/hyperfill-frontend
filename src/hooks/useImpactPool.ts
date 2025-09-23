@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useWallet } from './useWallet';
-import { CONTRACTS, IMPACT_POOL_ABI } from '@/lib/contracts';
+import { CONTRACTS, IMPACT_POOL_ABI, WHBAR_ABI } from '@/lib/contracts';
 
 export interface ImpactPoolStats {
   userBalance: string;
@@ -54,36 +54,60 @@ export const useImpactPool = () => {
 
       const { impactPoolContract } = contracts;
 
+      // Create WHBAR contract instance to get real token balance
+      // Use provider instead of signer for view calls
+      const provider = signer.provider;
+      if (!provider) {
+        console.error('No provider available');
+        return;
+      }
+
+      const whbarContract = new ethers.Contract(
+        CONTRACTS.WHBAR_ADDRESS,
+        WHBAR_ABI,
+        provider
+      );
+
       const [
         userBalance,
-        totalPoolBalance,
+        realTotalPoolBalance,
         userDonationRate,
         totalDonated,
-        certificatesCount,
-        certificates
+        donationCount
       ] = await Promise.all([
         impactPoolContract.getUserBalance(account),
-        impactPoolContract.getTotalPoolBalance(),
+        whbarContract.balanceOf(CONTRACTS.IMPACT_POOL_ADDRESS), // Get real WHBAR token balance
         impactPoolContract.getUserDonationRate(account),
         impactPoolContract.getUserTotalDonated(account),
-        impactPoolContract.getUserCertificateCount(account),
-        impactPoolContract.getUserCertificates(account, 0, 10)
+        impactPoolContract.getUserDonationCount(account)
       ]);
 
-      const formattedCertificates = certificates.map((cert: any) => ({
-        id: cert.id.toString(),
-        amount: ethers.formatEther(cert.amount),
-        timestamp: cert.timestamp.toNumber(),
-        isMinted: cert.isMinted,
-        tokenId: cert.tokenId?.toString()
-      }));
+
+      // Fetch individual donations to build certificates
+      const formattedCertificates = [];
+      const count = Math.min(Number(donationCount), 10); // Limit to 10 most recent
+      
+      for (let i = 0; i < count; i++) {
+        try {
+          const donation = await impactPoolContract.getUserDonation(account, i);
+          formattedCertificates.push({
+            id: i.toString(),
+            amount: ethers.formatEther(donation.amount),
+            timestamp: Number(donation.timestamp),
+            isMinted: donation.certificateIssued,
+            tokenId: donation.certificateId?.toString()
+          });
+        } catch (error) {
+          console.error(`Error fetching donation ${i}:`, error);
+        }
+      }
 
       setStats({
         userBalance: ethers.formatEther(userBalance),
-        totalPoolBalance: ethers.formatEther(totalPoolBalance),
-        userDonationRate: userDonationRate.toNumber(),
+        totalPoolBalance: ethers.formatEther(realTotalPoolBalance),
+        userDonationRate: Number(userDonationRate),
         totalDonated: ethers.formatEther(totalDonated),
-        certificatesEarned: certificatesCount.toNumber(),
+        certificatesEarned: Number(donationCount),
         availableCertificates: formattedCertificates
       });
     } catch (error) {
@@ -186,8 +210,31 @@ export const useImpactPool = () => {
       const { impactPoolContract } = contracts;
       const amountWei = ethers.parseEther(amount);
 
+      // Create WHBAR contract instance
+      const whbarContract = new ethers.Contract(
+        CONTRACTS.WHBAR_ADDRESS,
+        WHBAR_ABI,
+        signer
+      );
+
+      // Check current allowance
+      const currentAllowance = await whbarContract.allowance(
+        await signer.getAddress(),
+        CONTRACTS.IMPACT_POOL_ADDRESS
+      );
+
+      // If allowance is insufficient, request approval
+      if (currentAllowance < amountWei) {
+        const approveTx = await whbarContract.approve(
+          CONTRACTS.IMPACT_POOL_ADDRESS,
+          amountWei,
+          { gasLimit: 100000 }
+        );
+        await approveTx.wait();
+      }
+
+      // Now call donate function (without value field)
       const tx = await impactPoolContract.donate(amountWei, {
-        value: amountWei,
         gasLimit: 300000,
       });
 

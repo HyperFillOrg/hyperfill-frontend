@@ -71,8 +71,8 @@ const Index = () => {
 
           <TabsContent value="impact" className="space-y-4">
             <ImpactPool
-              userBalance={stats?.userBalance || "0.00"}
-              totalPoolBalance={stats?.totalPoolBalance || "15,847.32"}
+              userBalance={stats?.totalDonated || "0.00"}
+              totalPoolBalance={stats?.totalPoolBalance || "0.00"}
               onDonateAmount={handleDonation}
               onWithdrawCertificate={handleCertificateMint}
             />
