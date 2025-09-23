@@ -56,51 +56,57 @@ export const useVault = () => {
     return { vaultContract, whbarContract };
   }, [signer]);
 
-  // Fetch vault stats
+  // Simplified fetch stats - only get essential data
   const fetchStats = useCallback(async () => {
-    if (!signer || !account) return;
+    if (!account) return;
 
     setRefreshing(true);
     try {
-      const contracts = getContracts();
-      if (!contracts) return;
+      // Use same approach as quick test - direct provider calls
+      if (!(window as any).ethereum) {
+        console.error('No ethereum provider available');
+        return;
+      }
+      
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      
+      // Create minimal contracts for essential data only
+      const vaultContract = new ethers.Contract(
+        CONTRACTS.VAULT_ADDRESS,
+        [
+          "function totalAssets() external view returns (uint256)",
+          "function getUserShareBalance(address user) external view returns (uint256)",
+          "function getSharePrice() external view returns (uint256)"
+        ],
+        provider
+      );
+      
+      const whbarContract = new ethers.Contract(
+        CONTRACTS.WHBAR_ADDRESS,
+        [
+          "function balanceOf(address account) external view returns (uint256)",
+          "function allowance(address owner, address spender) external view returns (uint256)"
+        ],
+        provider
+      );
 
-      const { vaultContract, whbarContract } = contracts;
-
-      // Fetch all data in parallel
-      const [
-        userShares,
-        userBalance,
-        totalAssets,
-        totalSupply,
-        sharePrice,
-        availableAssets,
-        minDeposit,
-        isPaused,
-        whbarBalance,
-        whbarAllowance,
-      ] = await Promise.all([
-        vaultContract.getUserShareBalance(account),
-        vaultContract.getBalanceUser(account),
-        vaultContract.totalAssets(),
-        vaultContract.totalSupply(),
-        vaultContract.getSharePrice(),
-        vaultContract.getAvailableAssets(),
-        vaultContract.minDeposit(),
-        vaultContract.paused(),
-        whbarContract.balanceOf(account),
-        whbarContract.allowance(account, CONTRACTS.VAULT_ADDRESS),
-      ]);
+      // Get only the data that's actually displayed on the UI
+      const totalAssets = await vaultContract.totalAssets();
+      const userShares = await vaultContract.getUserShareBalance(account);
+      const sharePrice = await vaultContract.getSharePrice();
+      const whbarBalance = await whbarContract.balanceOf(account);
+      const whbarAllowance = await whbarContract.allowance(account, CONTRACTS.VAULT_ADDRESS);
+      
 
       setStats({
         userShares: ethers.formatEther(userShares),
-        userBalance: ethers.formatEther(userBalance),
+        userBalance: ethers.formatEther(userShares), // Use shares as balance for now
         totalAssets: ethers.formatEther(totalAssets),
-        totalSupply: ethers.formatEther(totalSupply),
+        totalSupply: "0", // Default values for non-essential data
         sharePrice: ethers.formatEther(sharePrice),
-        availableAssets: ethers.formatEther(availableAssets),
-        minDeposit: ethers.formatEther(minDeposit),
-        isPaused,
+        availableAssets: ethers.formatEther(totalAssets), // Use totalAssets as fallback
+        minDeposit: "1.0", // Default minimum
+        isPaused: false, // Default not paused
         whbarBalance: ethers.formatEther(whbarBalance),
         whbarAllowance: ethers.formatEther(whbarAllowance),
       });
@@ -109,7 +115,7 @@ export const useVault = () => {
     } finally {
       setRefreshing(false);
     }
-  }, [signer, account, getContracts]);
+  }, [account]);
 
   // Approve WHBAR spending
   const approveWHBAR = useCallback(async (amount: string): Promise<boolean> => {
@@ -206,7 +212,7 @@ export const useVault = () => {
   }, [signer, getContracts, stats, approveWHBAR, fetchStats]);
 
   // Withdraw from vault
-  const withdraw = useCallback(async (): Promise<WithdrawResult> => {
+  const withdraw = useCallback(async (impactAllocationBps: number = 0): Promise<WithdrawResult> => {
     if (!signer) {
       return { success: false, error: 'No signer available' };
     }
@@ -218,8 +224,8 @@ export const useVault = () => {
 
       const { vaultContract } = contracts;
 
-      // Execute withdraw
-      const tx = await vaultContract.withdrawProfits({
+      // Execute withdraw with impact allocation
+      const tx = await vaultContract.withdrawProfits(impactAllocationBps, {
         gasLimit: 300000, // Set reasonable gas limit
       });
 

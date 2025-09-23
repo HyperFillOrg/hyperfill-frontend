@@ -7,19 +7,21 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, RefreshCw, TrendingUp, TrendingDown, Wallet, PiggyBank, Heart } from 'lucide-react';
+import { Loader2, RefreshCw, TrendingUp, Wallet, PiggyBank, Heart } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import { useVault } from '@/hooks/useVault';
 
 export const VaultDashboard = () => {
-  const { account, isConnected, isOnHederaTestnet } = useWallet();
+  const { isConnected, isOnHederaTestnet } = useWallet();
   const { stats, loading, refreshing, deposit, withdraw, approveWHBAR, refreshStats } = useVault();
+  
   const { toast } = useToast();
+  
   
   const [depositAmount, setDepositAmount] = useState('');
   const [isDepositing, setIsDepositing] = useState(false);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
-  const [donationPercentage, setDonationPercentage] = useState(5);
+  const [donationPercentage, setDonationPercentage] = useState(1);
 
   const handleDeposit = async () => {
     if (!depositAmount || parseFloat(depositAmount) <= 0) {
@@ -89,12 +91,17 @@ export const VaultDashboard = () => {
 
     setIsWithdrawing(true);
     try {
-      const result = await withdraw();
+      // Convert percentage to basis points (1% = 100 bps)
+      const impactAllocationBps = donationPercentage * 100;
+      const result = await withdraw(impactAllocationBps);
       
       if (result.success) {
+        const donationMessage = donationPercentage > 0 
+          ? ` (${donationPercentage}% donated to impact projects)`
+          : '';
         toast({
           title: "Withdrawal successful!",
-          description: `Withdrew ${result.assets} WHBAR`,
+          description: `Withdrew ${result.assets} WHBAR${donationMessage}`,
         });
       } else {
         toast({
@@ -325,7 +332,7 @@ export const VaultDashboard = () => {
                 </div>
                 <div className="space-y-2">
                   <div className="flex gap-2">
-                    {[0, 5, 10].map((percentage) => (
+                    {[1, 5, 10].map((percentage) => (
                       <Button
                         key={percentage}
                         variant={donationPercentage === percentage ? "default" : "outline"}
@@ -338,12 +345,9 @@ export const VaultDashboard = () => {
                     ))}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {donationPercentage > 0
-                      ? `${donationPercentage}% of withdrawn profits will be donated to verified social impact projects on Hedera. This creates transparency through blockchain verification and helps fund education, clean energy, and financial inclusion initiatives worldwide.`
-                      : "No donation will be made from withdrawn profits."
-                    }
+                    {`${donationPercentage}% of withdrawn profits will be donated to verified social impact projects on Hedera. This creates transparency through blockchain verification and helps fund education, clean energy, and financial inclusion initiatives worldwide.`}
                   </p>
-                  {donationPercentage > 0 && stats && (
+                  {stats && (
                     <div className="flex justify-between text-xs">
                       <span className="text-muted-foreground">Donation amount:</span>
                       <span className="font-medium text-success">
