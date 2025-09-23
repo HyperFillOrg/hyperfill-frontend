@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useImpactCertificate } from '@/hooks/useImpactCertificate';
-import { useToast } from '@/hooks/use-toast';
+import { TransactionDialog } from '@/components/ui/transaction-dialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,12 +27,30 @@ export const ImpactPool = ({
   const [donationAmount, setDonationAmount] = useState('');
   const [isDonating, setIsDonating] = useState(false);
   const { stats, loading, minting, mintCertificate } = useImpactCertificate();
-  const { toast } = useToast();
+  
+  const [dialogState, setDialogState] = useState<{
+    open: boolean;
+    type: 'success' | 'error' | 'warning';
+    title: string;
+    description?: string;
+    details?: Array<{ label: string; value: string; highlight?: boolean }>;
+    txHash?: string;
+  }>({ open: false, type: 'success', title: '' });
 
   const handleDonationSubmit = () => {
     const amount = parseFloat(donationAmount);
     if (amount > 0) {
       onDonateAmount(donationAmount);
+      setDialogState({
+        open: true,
+        type: 'success',
+        title: 'Donation Initiated',
+        description: 'Thank you for supporting social impact projects!',
+        details: [
+          { label: 'Donation Amount', value: `${donationAmount} WHBAR` },
+          { label: 'Status', value: 'Processing' }
+        ]
+      });
       setDonationAmount('');
       setIsDonating(false);
     }
@@ -42,22 +60,32 @@ export const ImpactPool = ({
     try {
       const result = await mintCertificate(certificateId);
       if (result.success) {
-        toast({
-          title: "Certificate Minted",
-          description: `Impact Certificate #${certificateId} has been minted successfully!`,
+        setDialogState({
+          open: true,
+          type: 'success',
+          title: 'Certificate Minted Successfully',
+          description: 'Your impact certificate has been minted as an HTS NFT',
+          details: [
+            { label: 'Certificate ID', value: `#${certificateId}` },
+            { label: 'Token Standard', value: 'HTS NFT' },
+            { label: 'Blockchain', value: 'Hedera Testnet' }
+          ],
+          txHash: result.txHash
         });
       } else {
-        toast({
-          title: "Minting Failed",
-          description: result.error || "Failed to mint certificate",
-          variant: "destructive",
+        setDialogState({
+          open: true,
+          type: 'error',
+          title: 'Certificate Minting Failed',
+          description: result.error || 'Failed to mint certificate. Please try again.'
         });
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred while minting",
-        variant: "destructive",
+      setDialogState({
+        open: true,
+        type: 'error',
+        title: 'Minting Error',
+        description: 'An unexpected error occurred while minting'
       });
     }
   };
@@ -104,7 +132,19 @@ export const ImpactPool = ({
                       key={amount}
                       variant="outline"
                       size="sm"
-                      onClick={() => onDonateAmount(amount.toString())}
+                      onClick={() => {
+                        onDonateAmount(amount.toString());
+                        setDialogState({
+                          open: true,
+                          type: 'success',
+                          title: 'Donation Initiated',
+                          description: 'Thank you for supporting social impact projects!',
+                          details: [
+                            { label: 'Donation Amount', value: `${amount} WHBAR` },
+                            { label: 'Status', value: 'Processing' }
+                          ]
+                        });
+                      }}
                       className="text-xs"
                     >
                       ${amount}
@@ -292,6 +332,16 @@ export const ImpactPool = ({
           </div>
         </CardContent>
       </Card>
+
+      <TransactionDialog
+        open={dialogState.open}
+        onOpenChange={(open) => setDialogState(prev => ({ ...prev, open }))}
+        type={dialogState.type}
+        title={dialogState.title}
+        description={dialogState.description}
+        details={dialogState.details}
+        txHash={dialogState.txHash}
+      />
     </div>
   );
 };

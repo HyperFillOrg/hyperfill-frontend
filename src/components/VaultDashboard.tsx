@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, RefreshCw, TrendingUp, Wallet, PiggyBank, Heart } from 'lucide-react';
+import { TransactionDialog } from '@/components/ui/transaction-dialog';
+import { Loader2, RefreshCw, TrendingUp, Wallet, PiggyBank, Heart, ExternalLink } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import { useVault } from '@/hooks/useVault';
 
@@ -15,38 +15,47 @@ export const VaultDashboard = () => {
   const { isConnected, isOnHederaTestnet } = useWallet();
   const { stats, loading, refreshing, deposit, withdraw, approveWHBAR, refreshStats } = useVault();
   
-  const { toast } = useToast();
-  
-  
   const [depositAmount, setDepositAmount] = useState('');
   const [isDepositing, setIsDepositing] = useState(false);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [donationPercentage, setDonationPercentage] = useState(1);
+  
+  const [dialogState, setDialogState] = useState<{
+    open: boolean;
+    type: 'success' | 'error' | 'warning';
+    title: string;
+    description?: string;
+    details?: Array<{ label: string; value: string; highlight?: boolean }>;
+    txHash?: string;
+  }>({ open: false, type: 'success', title: '' });
 
   const handleDeposit = async () => {
     if (!depositAmount || parseFloat(depositAmount) <= 0) {
-      toast({
-        title: "Invalid amount",
-        description: "Please enter a valid deposit amount",
-        variant: "destructive",
+      setDialogState({
+        open: true,
+        type: 'error',
+        title: 'Invalid Amount',
+        description: 'Please enter a valid deposit amount'
       });
       return;
     }
 
     if (stats && parseFloat(depositAmount) < parseFloat(stats.minDeposit)) {
-      toast({
-        title: "Amount too small", 
-        description: `Minimum deposit is ${stats.minDeposit} WHBAR`,
-        variant: "destructive",
+      setDialogState({
+        open: true,
+        type: 'error',
+        title: 'Amount Too Small',
+        description: `Minimum deposit is ${stats.minDeposit} WHBAR`
       });
       return;
     }
 
     if (stats && parseFloat(depositAmount) > parseFloat(stats.whbarBalance)) {
-      toast({
-        title: "Insufficient balance",
-        description: "You don't have enough WHBAR",
-        variant: "destructive",
+      setDialogState({
+        open: true,
+        type: 'error',
+        title: 'Insufficient Balance',
+        description: "You don't have enough WHBAR"
       });
       return;
     }
@@ -56,23 +65,31 @@ export const VaultDashboard = () => {
       const result = await deposit(depositAmount);
       
       if (result.success) {
-        toast({
-          title: "Deposit successful!",
-          description: `Deposited ${depositAmount} WHBAR and received ${result.shares} shares`,
+        setDialogState({
+          open: true,
+          type: 'success',
+          title: 'Deposit Successful',
+          description: 'Your WHBAR has been successfully deposited into the vault',
+          details: [
+            { label: 'Amount Deposited', value: `${depositAmount} WHBAR` }
+          ],
+          txHash: result.txHash
         });
         setDepositAmount('');
       } else {
-        toast({
-          title: "Deposit failed",
-          description: result.error || "Unknown error",
-          variant: "destructive",
+        setDialogState({
+          open: true,
+          type: 'error',
+          title: 'Deposit Failed',
+          description: result.error || 'Unknown error occurred. Please try again.'
         });
       }
     } catch (error) {
-      toast({
-        title: "Deposit failed", 
-        description: "An unexpected error occurred",
-        variant: "destructive",
+      setDialogState({
+        open: true,
+        type: 'error',
+        title: 'Deposit Failed',
+        description: 'An unexpected error occurred'
       });
     } finally {
       setIsDepositing(false);
@@ -81,10 +98,11 @@ export const VaultDashboard = () => {
 
   const handleWithdraw = async () => {
     if (!stats || parseFloat(stats.userShares) === 0) {
-      toast({
-        title: "No shares to withdraw",
-        description: "You don't have any shares in the vault",
-        variant: "destructive",
+      setDialogState({
+        open: true,
+        type: 'error',
+        title: 'No Shares to Withdraw',
+        description: "You don't have any shares in the vault"
       });
       return;
     }
@@ -96,25 +114,43 @@ export const VaultDashboard = () => {
       const result = await withdraw(impactAllocationBps);
       
       if (result.success) {
-        const donationMessage = donationPercentage > 0 
-          ? ` (${donationPercentage}% donated to impact projects)`
-          : '';
-        toast({
-          title: "Withdrawal successful!",
-          description: `Withdrew ${result.assets} WHBAR${donationMessage}`,
+        const donationAmount = stats ? ((parseFloat(stats.userShares) * parseFloat(stats.sharePrice)) * donationPercentage / 100).toFixed(4) : '0';
+        const withdrawalDetails = [
+          { label: 'Amount Withdrawn', value: `${result.assets ? parseFloat(result.assets).toFixed(4) : 'Processing...'} WHBAR` }
+        ];
+        
+        if (donationPercentage > 0) {
+          withdrawalDetails.push({
+            label: 'Your Donation',
+            value: `${donationPercentage}% to impact projects`,
+            highlight: true
+          });
+        }
+        
+        setDialogState({
+          open: true,
+          type: 'success',
+          title: 'Withdrawal Successful',
+          description: donationPercentage > 0 
+            ? 'Your withdrawal is complete and your donation will support verified social impact projects'
+            : 'Your WHBAR has been successfully withdrawn from the vault',
+          details: withdrawalDetails,
+          txHash: result.txHash
         });
       } else {
-        toast({
-          title: "Withdrawal failed",
-          description: result.error || "Unknown error", 
-          variant: "destructive",
+        setDialogState({
+          open: true,
+          type: 'error',
+          title: 'Withdrawal Failed',
+          description: result.error || 'Unknown error occurred. Please try again.'
         });
       }
     } catch (error) {
-      toast({
-        title: "Withdrawal failed",
-        description: "An unexpected error occurred",
-        variant: "destructive",
+      setDialogState({
+        open: true,
+        type: 'error',
+        title: 'Withdrawal Failed',
+        description: 'An unexpected error occurred'
       });
     } finally {
       setIsWithdrawing(false);
@@ -125,18 +161,26 @@ export const VaultDashboard = () => {
     if (!depositAmount) return;
     
     try {
-      const success = await approveWHBAR(depositAmount);
-      if (success) {
-        toast({
-          title: "Approval successful",
-          description: `Approved ${depositAmount} WHBAR for spending`,
+      const result = await approveWHBAR(depositAmount);
+      if (result.success) {
+        setDialogState({
+          open: true,
+          type: 'success',
+          title: 'Token Approval Successful',
+          description: 'You can now proceed with your deposit',
+          details: [
+            { label: 'Amount Approved', value: `${depositAmount} WHBAR` },
+            { label: 'Approved For', value: 'Vault Deposits' }
+          ],
+          txHash: result.txHash
         });
       }
     } catch (error) {
-      toast({
-        title: "Approval failed",
-        description: "Failed to approve WHBAR",
-        variant: "destructive",
+      setDialogState({
+        open: true,
+        type: 'error',
+        title: 'Approval Failed',
+        description: result?.error || 'An unexpected error occurred during approval. Please try again.'
       });
     }
   };
@@ -393,6 +437,16 @@ export const VaultDashboard = () => {
           Refresh Data
         </Button>
       </div>
+
+      <TransactionDialog
+        open={dialogState.open}
+        onOpenChange={(open) => setDialogState(prev => ({ ...prev, open }))}
+        type={dialogState.type}
+        title={dialogState.title}
+        description={dialogState.description}
+        details={dialogState.details}
+        txHash={dialogState.txHash}
+      />
     </div>
   );
 };

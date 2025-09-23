@@ -31,6 +31,12 @@ export interface WithdrawResult {
   error?: string;
 }
 
+export interface ApprovalResult {
+  success: boolean;
+  txHash?: string;
+  error?: string;
+}
+
 export const useVault = () => {
   const { signer, account, isConnected } = useWallet();
   const [loading, setLoading] = useState(false);
@@ -118,16 +124,15 @@ export const useVault = () => {
   }, [account]);
 
   // Approve WHBAR spending
-  const approveWHBAR = useCallback(async (amount: string): Promise<boolean> => {
+  const approveWHBAR = useCallback(async (amount: string): Promise<ApprovalResult> => {
     if (!signer) {
-      console.error('No signer available');
-      return false;
+      return { success: false, error: 'No signer available' };
     }
 
     try {
       setLoading(true);
       const contracts = getContracts();
-      if (!contracts) return false;
+      if (!contracts) return { success: false, error: 'Failed to get contracts' };
 
       const { whbarContract } = contracts;
       const amountWei = ethers.parseEther(amount);
@@ -137,10 +142,18 @@ export const useVault = () => {
 
       // Refresh stats after approval
       await fetchStats();
-      return true;
+      return { success: true, txHash: tx.hash };
     } catch (error: any) {
       console.error('Error approving WHBAR:', error);
-      return false;
+      let errorMessage = 'Unknown error occurred';
+      
+      if (error.reason) {
+        errorMessage = error.reason;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
@@ -164,9 +177,9 @@ export const useVault = () => {
       if (stats) {
         const allowance = ethers.parseEther(stats.whbarAllowance);
         if (allowance < (amountWei)) {
-          const approved = await approveWHBAR(amount);
-          if (!approved) {
-            return { success: false, error: 'Failed to approve WHBAR' };
+          const approvalResult = await approveWHBAR(amount);
+          if (!approvalResult.success) {
+            return { success: false, error: approvalResult.error || 'Failed to approve WHBAR' };
           }
         }
       }
